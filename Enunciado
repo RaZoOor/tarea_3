@@ -1,0 +1,79 @@
+Navegación de Robot.
+
+~ Modelaremos el plano con una grilla.
+~ Las transiciones entre estados (celdas en la grilla) con arcos entre nodos de un grafo.
+						      Id's
+	~Llegada	 		    4
+	~Estado a evitar	7
+	~Inicio				    5
+	~No Accesible		  -
+
+Grafo dirigido:
+	V: Conjunto de estados posibles
+	E: Transición (vi,vj)
+	W(vi,vj): Prob. de transición
+
+Grilla:
+
+	1	2	3	(4)
+	{5}	x	6	[7]
+	8	9	10	11
+
+~ El Robot avanza [0.1]<- [0.8]| [0.1]-> (N.S.E.O).
+~ Dada una política, todas las probabilidades de transición quedan definidas.
+~ Si no hay camino se queda donde está.
+~ Dada una política, pueden existir estados sumíderos.
+~ La política define la acción esperada, com probabilidad 0.8.
+~ Las dos acciones restantes tienen probabilidad 0.1.
+~ Una trayectoria es un Random Walk en el grafo de transiciones.
+
+Política: Asignaciones de direcciones por defecto.
+	Estado 		Dirección
+	  1 			E
+	  2				E
+	  3				E
+	  4				-
+	  5				N
+	  6				N
+	  7				-
+	  8				N
+	  9				O
+	  10			O
+	  11			O
+
+~ Observar que desde 5, los estados {8,9,10,11} son inalcanzables.
+~ Ahora la matriz con la que trabaja el programa
+
+		 1 		 2		 3		 4		 5		 6		 7		 8		 9		10	 	11
+1 	0.1 	0.8		0.0		0.0		0.1 	0.0		0.0		0.0		0.0		0.0		0.0
+2		0.0		0.2		0.8		0.0		0.0		0.0		0.0		0.0		0.0		0.0		0.0
+3		0.0		0.0		0.1 	0.8		0.0		0.1 	0.0		0.0		0.0		0.0		0.0
+4		0.0		0.0		0.0		1.0		0.0		0.0		0.0		0.0		0.0		0.0		0.0
+5		0.8		0.0		0.0		0.0		0.2		0.0		0.0		0.0		0.0		0.0		0.0
+6		0.0		0.0		0.8		0.0		0.0		0.1 	0.1 	0.0		0.0		0.0		0.0
+7		0.0		0.0		0.0		0.0		0.0		0.0		1.0		0.0		0.0		0.0		0.0
+8		0.0		0.0		0.0		0.0		0.8		0.0		0.0		0.1 	0.1 	0.0 	0.0
+9		0.0	 	0.0		0.0		0.0		0.0		0.0		0.0		0.8		0.2		0.0		0.0
+10	0.0		0.0		0.0		0.0		0.0		0.1 	0.0		0.0 	0.8		0.1 	0.0	
+11	0.0		0.0		0.0		0.0		0.0		0.0		0.1 	0.0		0.0		0.8		0.1
+
+RT: -0.02 si transita a un estado no final
+	+1 Si va al objetivo
+	-1 Si va al estado no deseado
+
+EJ: 							          RT 		p2
+	5 | rand(row(5)) = 1 		-0.02	  0.8	
+	1 | rand(row(1)) = 2 		-0.02   0.8
+	2 | rand(row(2)) = 3 		-0.02	  0.8
+	3 | rand(row(3)) = 4		+1 		  0.8
+							          _________________
+							          sum = 0.94	prod = 0.4096
+__
+RT = RT1P1+RT2P2+.....+RTnPn / n^sum_i=1 (Pi)
+
+
+Algoritmo I 															            Algoritmo II
+1. Generar una política.												      1. Invocar Algoritmo I.
+2. Generar matriz de transiciones de la política.			2. Guardar el par (política, recompensa promedio).
+3. Generar n trayectorias.												    3. Volver a Algoritmo I, hasta generar m políticas.
+4. Calcular RT, retornar política.										4. Elegir la política de máxima recompensa.
